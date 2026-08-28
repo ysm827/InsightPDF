@@ -1,0 +1,11 @@
+services:
+  insightpdf:
+    build:
+      context: .
+      # docker compose automatically reads GEMINI_API_KEY from the .env file
+      args:
+        GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    image: insightpdf:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped

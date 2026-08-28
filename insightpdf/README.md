@@ -30,6 +30,23 @@ npm run dev                  # http://localhost:3000
 
 > 没有 API Key？也可以在应用内「设置 → 自定义 API」中直接填入。
 
+## 🐳 Docker 部署
+
+项目为纯前端 SPA（浏览器直连 Gemini API，无需后端），使用多阶段构建：Node 构建 → Nginx 托管，镜像约 80MB。
+
+```bash
+# 方式一：docker compose（自动读取 .env 中的 GEMINI_API_KEY）
+cp .env.example .env      # 填入 GEMINI_API_KEY
+docker compose up -d --build   # 访问 http://localhost:8080
+
+# 方式二：docker build + run
+docker build -t insightpdf --build-arg GEMINI_API_KEY=你的key .
+docker run -d -p 8080:80 --name insightpdf insightpdf
+```
+
+> - 不传 Key 构建也能运行：用户可在应用内「设置 → 自定义 API」里填写 Key（保存在浏览器本地）
+> - API Key 会被编译进静态 JS 包，对访问者可见——请使用受限额度的 Key，切勿用于共享服务
+
 ## 📦 脚本
 
 | 命令 | 说明 |
