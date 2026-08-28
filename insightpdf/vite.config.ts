@@ -30,6 +30,13 @@ export default defineConfig(({ mode }) => {
             'vendor-ai': ['@google/genai'],
             'vendor-markdown': ['react-markdown', 'remark-math', 'rehype-katex', 'katex'],
           },
+          assetFileNames: (assetInfo) => {
+            const name = assetInfo.name || '';
+            if (name.endsWith('.mjs')) {
+              return 'assets/[name]-[hash].js';
+            }
+            return 'assets/[name]-[hash][extname]';
+          },
         },
       },
     },
