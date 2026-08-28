@@ -1,12 +1,12 @@
 import React from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import type { LocatorResult } from '../types';
+import type { LocatorResult } from '@/types';
+import { PDF_CONFIG } from '@/constants';
 import PdfOverlay from './PdfOverlay';
 
 // Use the locally bundled worker (previously fetched from unpkg at runtime)
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-
 
 interface PdfDocumentListProps {
   file: File;
@@ -33,9 +33,6 @@ const PdfDocumentList: React.FC<PdfDocumentListProps> = ({
   onRegisterPageRef,
   onPageLoad
 }) => {
-  // Define how many pages to keep rendered around the current page
-  const WINDOW_SIZE = 2;
-
   return (
     <div className="flex flex-col gap-6 pb-20">
       <Document
@@ -54,7 +51,7 @@ const PdfDocumentList: React.FC<PdfDocumentListProps> = ({
           
           // Optimization: Only render pages close to the current viewport
           // This dramatically improves performance during zoom by not re-rendering the whole PDF
-          const shouldRender = Math.abs(pageIndex - currentPage) <= WINDOW_SIZE;
+          const shouldRender = Math.abs(pageIndex - currentPage) <= PDF_CONFIG.WINDOW_RENDER_SIZE;
 
           return (
             <div

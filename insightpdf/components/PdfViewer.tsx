@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import type { LocatorResult } from '../types';
+import type { LocatorResult } from '@/types';
 import PdfToolbar from './PdfToolbar';
 import PdfDocumentList from './PdfDocumentList';
-import { usePdfNavigation } from '../hooks/usePdfNavigation';
-import { usePdfContainer } from '../hooks/usePdfContainer';
-import { usePdfZoom } from '../hooks/usePdfZoom';
+import { usePdfNavigation } from '@/hooks/usePdfNavigation';
+import { usePdfContainer } from '@/hooks/usePdfContainer';
+import { usePdfZoom } from '@/hooks/usePdfZoom';
 
 interface PdfViewerProps {
   file: File | null;
@@ -83,15 +83,29 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ file, result }) => {
 
   if (!file) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg m-4 transition-colors">
-        <p className="text-lg font-medium">未加载 PDF</p>
-        <p className="text-sm">上传文档以开始</p>
+      <div className="h-full flex flex-col items-center justify-center p-8 bg-gray-100/70 dark:bg-[#0a0e17] transition-colors">
+        <div className="flex flex-col items-center max-w-sm text-center p-8 rounded-3xl border-2 border-dashed border-gray-300/80 dark:border-gray-800 bg-white/50 dark:bg-gray-900/30 backdrop-blur-sm">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 ring-4 ring-indigo-500/10 shadow-sm">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 mb-1">
+            等待载入 PDF 文档
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+            将 PDF 文件拖放到窗口中，或在左侧面板中点击上传按钮
+          </p>
+          <div className="inline-flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full font-mono">
+            支持标准 PDF 格式
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-200 dark:bg-gray-900 transition-colors duration-300">
+    <div className="h-full flex flex-col bg-slate-100 dark:bg-[#0b0f19] transition-colors duration-300">
       <PdfToolbar 
         pageNumber={pageNumber}
         numPages={numPages}

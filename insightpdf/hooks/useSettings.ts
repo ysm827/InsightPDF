@@ -1,7 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { storage } from '../services/storageService';
+import { storage } from '@/services/storageService';
+import { API_CONFIG } from '@/constants';
 
-export const DEFAULT_MODEL = 'gemini-3-flash-preview';
+export const DEFAULT_MODEL = API_CONFIG.DEFAULT_MODEL;
+
+/** Automatic migration map for legacy/deprecated model names */
+const DEPRECATED_MODEL_MIGRATIONS: Record<string, string> = {
+  'gemini-3-flash-preview': 'gemini-3.7-flash',
+  'gemini-3-pro-preview': 'gemini-3.1-pro',
+  'gemini-3.5-flash': 'gemini-3.7-flash',
+  'gemini-3.5-flash-lite': 'gemini-3.7-flash',
+};
 
 export const useSettings = () => {
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
@@ -9,7 +18,12 @@ export const useSettings = () => {
   const [isSettingsHydrated, setIsSettingsHydrated] = useState(false);
 
   useEffect(() => {
-    setModel(storage.getModel(DEFAULT_MODEL));
+    let savedModel = storage.getModel(DEFAULT_MODEL);
+    if (savedModel && DEPRECATED_MODEL_MIGRATIONS[savedModel]) {
+      savedModel = DEPRECATED_MODEL_MIGRATIONS[savedModel];
+      storage.saveModel(savedModel);
+    }
+    setModel(savedModel);
     setUseFilesApi(storage.getUseFilesApi(true));
     setIsSettingsHydrated(true);
   }, []);
@@ -34,7 +48,6 @@ export const useSettings = () => {
     model,
     setModel,
     useFilesApi,
-    toggleFilesApi,
-    isSettingsHydrated
+    toggleFilesApi
   };
 };

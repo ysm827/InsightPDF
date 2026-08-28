@@ -1,8 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { GripVertical } from 'lucide-react';
-
-const MIN_SIDEBAR_WIDTH = 300;
-const MAX_SIDEBAR_WIDTH = 800;
+import { SIDEBAR_CONFIG } from '@/constants';
 
 interface ResizableSidebarProps {
   children: React.ReactNode;
@@ -10,8 +8,7 @@ interface ResizableSidebarProps {
 }
 
 const ResizableSidebar: React.FC<ResizableSidebarProps> = ({ children, isDesktop }) => {
-  // Increased default width by 10% (350 * 1.1 = 385)
-  const [sidebarWidth, setSidebarWidth] = useState(385);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(SIDEBAR_CONFIG.DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
 
   const startResizing = useCallback(() => setIsResizing(true), []);
@@ -21,8 +18,8 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({ children, isDesktop
     (mouseMoveEvent: MouseEvent) => {
       if (isResizing) {
         const newWidth = Math.max(
-          MIN_SIDEBAR_WIDTH,
-          Math.min(mouseMoveEvent.clientX, MAX_SIDEBAR_WIDTH)
+          SIDEBAR_CONFIG.MIN_WIDTH,
+          Math.min(mouseMoveEvent.clientX, SIDEBAR_CONFIG.MAX_WIDTH)
         );
         setSidebarWidth(newWidth);
       }

@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import type { RefObject } from 'react';
+import { PDF_CONFIG } from '@/constants';
 
 export const usePdfZoom = (containerRef: RefObject<HTMLDivElement | null>) => {
-  const [scale, setScale] = useState<number>(1.0);
+  const [scale, setScale] = useState<number>(PDF_CONFIG.DEFAULT_SCALE);
   const [pdfPageSize, setPdfPageSize] = useState<{width: number, height: number} | null>(null);
 
   const calculateFitScale = useCallback((pageWidth: number, pageHeight: number) => {
-    if (!containerRef.current) return 1.0;
+    if (!containerRef.current) return PDF_CONFIG.DEFAULT_SCALE;
 
     const { clientWidth, clientHeight } = containerRef.current;
     // Account for padding (p-8 = 32px * 2 = 64px)
@@ -25,7 +26,7 @@ export const usePdfZoom = (containerRef: RefObject<HTMLDivElement | null>) => {
   const handleZoom = useCallback((delta: number) => {
     setScale(s => {
       const newScale = Math.round((s + delta) * 10) / 10;
-      return Math.min(2.5, Math.max(0.1, newScale));
+      return Math.min(PDF_CONFIG.SCALE_MAX, Math.max(PDF_CONFIG.SCALE_MIN, newScale));
     });
   }, []);
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { ChatMessage, LocatorResult } from '../types';
-import { AppStatus } from '../types';
-import { storage } from '../services/storageService';
+import type { ChatMessage, LocatorResult } from '@/types';
+import { AppStatus } from '@/types';
+import { storage } from '@/services/storageService';
 
 export const useChatSession = () => {
   const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
@@ -62,7 +62,6 @@ export const useChatSession = () => {
     setActiveResult,
     errorMessage,
     setErrorMessage,
-    clearSession,
-    isChatHydrated
+    clearSession
   };
 };

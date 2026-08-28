@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
-import type { ChatMessage, LocatorResult } from '../types';
-import { AppStatus, generateId } from '../types';
-import { fileToGenerativePart, chatWithPdf, uploadFileToGemini } from '../services/geminiService';
-import type { GenerativeFilePart } from '../services/geminiService';
-import { useSettings } from './useSettings';
-import { useFileHandler } from './useFileHandler';
-import { useChatSession } from './useChatSession';
+import type { ChatMessage, LocatorResult } from '@/types';
+import { AppStatus, generateId } from '@/types';
+import { fileToGenerativePart, chatWithPdf, uploadFileToGemini } from '@/services/geminiService';
+import type { GenerativeFilePart } from '@/services/geminiService';
+import { useSettings } from '@/hooks/useSettings';
+import { useFileHandler } from '@/hooks/useFileHandler';
+import { useChatSession } from '@/hooks/useChatSession';
 
 const isPdfFile = (file: File): boolean =>
   file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
@@ -16,16 +16,14 @@ export const useChatController = () => {
     model, 
     setModel, 
     useFilesApi, 
-    toggleFilesApi, 
-    isSettingsHydrated 
+    toggleFilesApi 
   } = useSettings();
 
   const { 
     file, 
     saveFile, 
     uploadedFileUri, 
-    setUploadedFileUri, 
-    isFileHydrated 
+    setUploadedFileUri 
   } = useFileHandler();
 
   const { 
@@ -37,8 +35,7 @@ export const useChatController = () => {
     setActiveResult, 
     errorMessage,
     setErrorMessage,
-    clearSession, 
-    isChatHydrated 
+    clearSession 
   } = useChatSession();
 
   // Remembers the last question so the error state can offer a one-click retry
@@ -48,8 +45,6 @@ export const useChatController = () => {
   fileRef.current = file;
   const uploadedUriRef = useRef<string | null>(null);
   uploadedUriRef.current = uploadedFileUri;
-
-  const isHydrated = isSettingsHydrated && isFileHydrated && isChatHydrated;
 
   // Reset retry state when a new file is loaded
   useEffect(() => {
@@ -206,7 +201,6 @@ export const useChatController = () => {
     handleRetry,
     canRetry,
     handleViewLocation,
-    toggleFilesApi,
-    isHydrated
+    toggleFilesApi
   };
 };

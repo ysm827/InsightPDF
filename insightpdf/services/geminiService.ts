@@ -1,9 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { LocatorResult } from '../types';
-import { storage } from './storageService';
-
-/** Single request timeout — Gemini can hang on very large documents. */
-const REQUEST_TIMEOUT_MS = 120_000;
+import type { LocatorResult } from '@/types';
+import { storage } from '@/services/storageService';
+import { API_CONFIG } from '@/constants';
 
 /** Rejects if the wrapped promise does not settle within `ms`. */
 const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
@@ -18,6 +16,27 @@ const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise
     );
   });
 
+/** Maps raw SDK/network errors to clear, localized messages. */
+const formatGeminiError = (error: unknown): Error => {
+  if (error instanceof Error) {
+    const msg = error.message;
+    if (msg.includes('API key not valid') || msg.includes('API_KEY_INVALID')) {
+      return new Error('API Key 无效或未授权，请检查配置中的 API Key。');
+    }
+    if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('Quota exceeded')) {
+      return new Error('API 请求频率超限或额度已用尽 (429)，请稍后再试或更换模型。');
+    }
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      return new Error('网络连接失败，请检查网络或自定义 Base URL 代理设置。');
+    }
+    if (error instanceof SyntaxError || msg.includes('Unexpected token')) {
+      return new Error('模型返回了无法解析的内容，请重试。');
+    }
+    return error;
+  }
+  return new Error(String(error));
+};
+
 const getClient = () => {
   const customConfig = storage.getCustomConfig();
   let apiKey = (customConfig.enabled && customConfig.apiKey)
@@ -28,13 +47,8 @@ const getClient = () => {
     throw new Error("API Key is missing. Please set GEMINI_API_KEY in .env.local or configure a custom key in settings.");
   }
 
-  // Strong cleaning: Remove all spaces, newlines (\n), and carriage returns (\r).
-  // Copy-pasting often introduces invisible characters causing "API key not valid" errors.
+  // Clean whitespace/newlines from copied keys
   apiKey = apiKey.replace(/[\n\r\s]/g, '');
-
-  // NOTE: BaseURL handling lives in services/networkInterceptor.ts.
-  // This prevents the SDK from generating malformed URLs (like /v1beta/v1beta)
-  // and handles both /upload and standard endpoints uniformly via global fetch interception.
 
   return new GoogleGenAI({ apiKey });
 };
@@ -65,24 +79,27 @@ export const fileToGenerativePart = async (file: File): Promise<GenerativeFilePa
 export const uploadFileToGemini = async (file: File): Promise<string> => {
   const ai = getClient();
 
-  const response = await withTimeout(
-    ai.files.upload({
-      file: file,
-      config: {
-        mimeType: file.type,
-        displayName: file.name
-      }
-    }),
-    REQUEST_TIMEOUT_MS,
-    '文件上传'
-  );
+  try {
+    const response = await withTimeout(
+      ai.files.upload({
+        file: file,
+        config: {
+          mimeType: file.type,
+          displayName: file.name
+        }
+      }),
+      API_CONFIG.REQUEST_TIMEOUT_MS,
+      '文件上传'
+    );
 
-  if (!response.uri) {
-    throw new Error('Upload succeeded but no file URI was returned.');
+    if (!response.uri) {
+      throw new Error('Upload succeeded but no file URI was returned.');
+    }
+    return response.uri;
+  } catch (error) {
+    throw formatGeminiError(error);
   }
-  return response.uri;
 };
-
 
 interface RawLocatorResponse {
   answer?: string;
@@ -100,7 +117,6 @@ export const chatWithPdf = async (
 ): Promise<LocatorResult> => {
   const ai = getClient();
 
-  // Schema handles both a conversational answer and optional location data
   const responseSchema = {
     type: Type.OBJECT,
     properties: {
@@ -163,7 +179,7 @@ export const chatWithPdf = async (
           responseSchema: responseSchema,
         }
       }),
-      REQUEST_TIMEOUT_MS,
+      API_CONFIG.REQUEST_TIMEOUT_MS,
       '生成回复'
     );
 
@@ -182,7 +198,6 @@ export const chatWithPdf = async (
       : undefined;
     const pageNumber = hasLocation && result.pageNumber ? result.pageNumber : undefined;
 
-    // Clean up result to match interface
     return {
       answer: result.answer,
       pageNumber,
@@ -192,9 +207,6 @@ export const chatWithPdf = async (
     };
   } catch (error) {
     console.error("Gemini Error:", error);
-    if (error instanceof SyntaxError) {
-      throw new Error("模型返回了无法解析的内容，请重试。");
-    }
-    throw error;
+    throw formatGeminiError(error);
   }
 };

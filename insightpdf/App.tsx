@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import PdfViewer from './components/PdfViewer';
-import ControlPanel from './components/ControlPanel';
-import DragDropOverlay from './components/DragDropOverlay';
-import ResizableSidebar from './components/ResizableSidebar';
-import { useMediaQuery } from './hooks/useMediaQuery';
-import { useTheme } from './hooks/useTheme';
-import { useChatController } from './hooks/useChatController';
-import { useDragDrop } from './hooks/useDragDrop';
+import PdfViewer from '@/components/PdfViewer';
+import ControlPanel from '@/components/ControlPanel';
+import DragDropOverlay from '@/components/DragDropOverlay';
+import ResizableSidebar from '@/components/ResizableSidebar';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useTheme } from '@/hooks/useTheme';
+import { useChatController } from '@/hooks/useChatController';
+import { useDragDrop } from '@/hooks/useDragDrop';
 import { MessageSquare, FileText } from 'lucide-react';
-import type { LocatorResult } from './types';
+import type { LocatorResult } from '@/types';
 
 const App: React.FC = () => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -68,12 +68,18 @@ const App: React.FC = () => {
       {!isDesktop && file && (
         <button
           onClick={() => setMobileTab(prev => prev === 'chat' ? 'pdf' : 'chat')}
-          className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 active:scale-95 transition-transform"
+          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 active:scale-95 transition-all flex items-center gap-2 text-xs font-bold border border-white/20"
         >
           {mobileTab === 'chat' ? (
-            <FileText className="w-6 h-6" />
+            <>
+              <FileText className="w-4 h-4" />
+              <span>查看 PDF</span>
+            </>
           ) : (
-            <MessageSquare className="w-6 h-6" />
+            <>
+              <MessageSquare className="w-4 h-4" />
+              <span>回到对话</span>
+            </>
           )}
         </button>
       )}

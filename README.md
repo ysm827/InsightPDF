@@ -42,7 +42,7 @@ InsightPDF 不仅仅是一个聊天机器人，它是一个**视觉化**的阅�
 *   **🎯 视觉定位 (Visual Grounding)**
     AI 不仅回答问题，还会自动跳转到 PDF 对应页面，并用**红框高亮**显示答案来源（支持文本段落、图表、数据表格）。
 *   **🧠 多模态智能**
-    基于 **Gemini 2.0 Flash / Pro** 原生多模态能力，无需传统 OCR，直接理解文档的视觉结构。
+    基于 **Gemini 3 系列 (Gemini 3.7 Flash / 3.1 Pro)** 原生多模态能力，无需传统 OCR，直接理解文档的视觉结构。
 *   **⚡️ 极速响应**
     支持流式传输，大文件通过 Files API 优化处理，秒级响应。
 *   **🎨 优雅体验**
@@ -60,7 +60,7 @@ InsightPDF 不仅仅是一个聊天机器人，它是一个**视觉化**的阅�
 *   **语言**: TypeScript
 *   **样式**: Tailwind CSS
 *   **PDF 渲染**: React-PDF
-*   **AI 模型**: Google Gemini API (`gemini-2.0-flash`, `gemini-1.5-pro`)
+*   **AI 模型**: Google Gemini API (`gemini-3.7-flash`, `gemini-3.1-pro`)
 
 ---
 

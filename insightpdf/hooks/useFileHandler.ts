@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { storage, getFileFromDB, saveFileToDB } from '../services/storageService';
+import { storage, getFileFromDB, saveFileToDB } from '@/services/storageService';
 
 export const useFileHandler = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -41,10 +41,8 @@ export const useFileHandler = () => {
 
   return {
     file,
-    setFile,
     saveFile,
     uploadedFileUri,
-    setUploadedFileUri,
-    isFileHydrated
+    setUploadedFileUri
   };
 };

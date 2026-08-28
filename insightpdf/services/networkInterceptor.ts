@@ -63,9 +63,6 @@ export const mountNetworkInterceptor = () => {
         newUrl = newUrl.replace(/\/v1beta\/v1beta/g, '/v1beta');
         newUrl = newUrl.replace(/\/v1\/v1/g, '/v1');
 
-        // Debug log for development (optional, keeps console clean in prod but useful for debugging proxy issues)
-        // console.debug(`[Interceptor] Redirected: ${urlString} -> ${newUrl}`);
-
         // 5. Return fetch with new URL
         // If input was a Request object, we need to handle it carefully, but usually SDK passes string + init
         if (input instanceof Request) {

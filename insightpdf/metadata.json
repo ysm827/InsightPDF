@@ -1,5 +1,5 @@
 {
   "name": "InsightPDF",
-  "description": "上传 PDF，提出问题，让 Gemini 3 Flash 精确定位答案位置并以可视化箭头标出。",
+  "description": "上传 PDF，提出问题，让 Gemini 3.7 Flash 精确定位答案位置并以可视化箭头标出。",
   "requestFramePermissions": []
 }

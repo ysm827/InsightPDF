@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Vendor styles bundled locally (previously loaded from CDNs) */
+/* Vendor styles bundled locally */
 @import 'katex/dist/katex.min.css';
 @import 'react-pdf/dist/Page/AnnotationLayer.css';
 @import 'react-pdf/dist/Page/TextLayer.css';
@@ -9,64 +9,108 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Custom palette previously defined in the CDN tailwind.config */
-  --color-gray-750: #2d3748;
-  --color-gray-850: #1a202c;
-  --color-gray-950: #0d1117;
+  --color-brand-50: #f5f7ff;
+  --color-brand-100: #ebf0fe;
+  --color-brand-200: #dce5fd;
+  --color-brand-500: #4f46e5;
+  --color-brand-600: #4338ca;
+  --color-brand-700: #3730a3;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-dark-bg: #090d16;
+  --color-dark-card: #111726;
+  --color-dark-border: #1e293b;
+  --color-dark-muted: #64748b;
 
-  /* Entry animations (replaces the tailwindcss-animate utilities that never worked) */
-  --animate-fade-in: fade-in 0.2s ease-out both;
-  --animate-zoom-in: zoom-in 0.2s ease-out both;
-  --animate-slide-up: slide-up 0.3s ease-out both;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Modern Animations */
+  --animate-fade-in: fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-zoom-in: zoom-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pulse-subtle: pulse-subtle 2s ease-in-out infinite;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
 
   @keyframes fade-in {
     from { opacity: 0; }
     to { opacity: 1; }
   }
   @keyframes zoom-in {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.96); }
     to { opacity: 1; transform: scale(1); }
   }
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(0.5rem); }
+    from { opacity: 0; transform: translateY(0.75rem); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-subtle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  @keyframes glow {
+    from { box-shadow: 0 0 10px -2px rgba(99, 102, 241, 0.4); }
+    to { box-shadow: 0 0 20px 2px rgba(99, 102, 241, 0.7); }
   }
 }
 
 body {
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar for better aesthetics */
+/* Glassmorphism Helpers */
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.dark .glass {
+  background: rgba(17, 23, 38, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .glass-card {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Custom Sleek Scrollbars */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-.dark ::-webkit-scrollbar-track {
-  background: #1f2937;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #4b5563;
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+  transition: background 0.2s;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
+  background: rgba(156, 163, 175, 0.7);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.4);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.7);
 }
 
-/* LaTeX adjustments */
+/* LaTeX formatting in chat */
 .katex {
-  font-size: 1.1em;
+  font-size: 1.08em;
 }
 
-/* react-pdf text layer: keep selection color readable in dark mode */
+/* react-pdf text layer */
 .dark .react-pdf__Page__textContent text {
   fill: transparent;
 }
+

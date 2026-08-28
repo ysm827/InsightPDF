@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { AppStatus } from '../types';
-import type { ChatMessage, LocatorResult } from '../types';
-import { Send } from 'lucide-react';
+import { AppStatus } from '@/types';
+import type { ChatMessage, LocatorResult } from '@/types';
+import { Send, Sparkles, X } from 'lucide-react';
 import PanelHeader from './PanelHeader';
 import SettingsModal from './SettingsModal';
 import ChatMessages from './ChatMessages';
@@ -45,7 +45,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 }) => {
   const [query, setQuery] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of chat
@@ -53,16 +53,28 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, status]);
 
+  // Focus input when file is loaded
+  useEffect(() => {
+    if (currentFile && status === AppStatus.IDLE) {
+      inputRef.current?.focus();
+    }
+  }, [currentFile, status]);
+
   const isUploading = status === AppStatus.PROCESSING_FILE;
   const isSearching = status === AppStatus.SEARCHING;
   const isLoading = isUploading || isSearching;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Allow typing during upload, but prevent submit until upload is complete
     if (query.trim() && currentFile && !isSearching && !isUploading) {
       onSearch(query);
       setQuery('');
+    }
+  };
+
+  const handleSuggestion = (suggestedQuery: string) => {
+    if (currentFile && !isLoading) {
+      onSearch(suggestedQuery);
     }
   };
 
@@ -99,27 +111,58 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           currentFile={currentFile}
           onRetry={onRetry}
           onViewLocation={onViewLocation}
+          onSuggestionClick={handleSuggestion}
         />
 
-        {/* Input Area */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 pb-2 pt-0 pointer-events-none">
-          <form onSubmit={handleSubmit} className="pointer-events-auto relative flex items-center gap-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl shadow-indigo-100/50 dark:shadow-none border border-gray-100 dark:border-gray-700 p-1.5 transition-all focus-within:shadow-2xl focus-within:border-indigo-100 dark:focus-within:border-indigo-900 focus-within:ring-4 focus-within:ring-indigo-500/5 dark:focus-within:ring-indigo-500/20">
+        {/* Floating Input Dock */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 pointer-events-none bg-gradient-to-t from-white via-white/80 dark:from-gray-900 dark:via-gray-900/80 to-transparent pt-6">
+          <form
+            onSubmit={handleSubmit}
+            className="pointer-events-auto relative flex items-center gap-2 glass-card bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-xl shadow-indigo-500/5 dark:shadow-black/40 border border-gray-200/90 dark:border-gray-700/80 p-1.5 transition-all focus-within:ring-2 focus-within:ring-indigo-500/40 focus-within:border-indigo-500/50"
+          >
             <input
+              ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={currentFile ? '询问关于 PDF 的内容...' : '请先上传文件'}
+              placeholder={
+                !currentFile
+                  ? '请先上传 PDF 文档...'
+                  : isUploading
+                  ? '文档正在上传解析中...'
+                  : '向 Gemini 提问文档内容，支持定位与公式...'
+              }
               disabled={!currentFile || isSearching}
-              className="flex-1 p-3 bg-transparent border-none focus:ring-0 outline-none text-sm text-gray-700 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50"
+              className="flex-1 px-3 py-2 bg-transparent border-none focus:ring-0 outline-none text-xs sm:text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-60"
               aria-label="输入问题"
             />
+
+            {query.trim() && (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                title="清除输入"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+
             <button
               type="submit"
               disabled={!currentFile || isLoading || !query.trim()}
-              aria-label="发送"
-              className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-300 dark:disabled:text-gray-500 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow active:scale-95"
+              aria-label="发送问题"
+              className={`p-2.5 rounded-xl text-white transition-all shadow-xs flex items-center justify-center ${
+                !currentFile || isLoading || !query.trim()
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 shadow-indigo-600/20 active:scale-95'
+              }`}
             >
-              <Send className="w-5 h-5" />
+              {isLoading ? (
+                <Sparkles className="w-4 h-4 animate-spin text-indigo-400" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
             </button>
           </form>
         </div>
@@ -131,3 +174,4 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
 };
 
 export default ControlPanel;
+
