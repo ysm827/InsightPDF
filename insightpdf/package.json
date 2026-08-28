@@ -1,7 +1,7 @@
 {
   "name": "insightpdf",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "上传 PDF，提出问题，让 Gemini 精确定位答案位置并以可视化箭头标出。",
   "engines": {
