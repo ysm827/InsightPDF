@@ -24,38 +24,34 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message: msg, onViewL
   const isAI = msg.role === 'ai';
 
   return (
-    <div className={`flex items-start gap-3 animate-fade-in ${isAI ? 'flex-row' : 'flex-row-reverse'}`}>
+    <div className={`flex items-start gap-2.5 animate-fade-in ${isAI ? 'flex-row' : 'flex-row-reverse'}`}>
       {/* Avatar */}
-      <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-xs ring-2 ${
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
         isAI
-          ? 'bg-gradient-to-tr from-indigo-600 to-violet-500 text-white ring-indigo-500/20'
-          : 'bg-gradient-to-tr from-gray-700 to-gray-800 text-white ring-gray-400/20'
+          ? 'bg-[var(--theme-bg-accent)]/10 text-[var(--theme-text-link)]'
+          : 'bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-secondary)]'
       }`}>
-        {isAI ? <Sparkles className="w-4 h-4" /> : <User className="w-4 h-4" />}
+        {isAI ? <Sparkles className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
       </div>
 
       {/* Message Bubble & Content */}
-      <div className={`flex flex-col max-w-[85%] ${isAI ? 'items-start' : 'items-end'}`}>
+      <div className={`flex flex-col max-w-[85%] ${isAI ? 'items-start w-full' : 'items-end'}`}>
         <div
-          className={`p-3.5 rounded-2xl text-sm leading-relaxed relative group transition-all ${
+          className={`text-sm leading-relaxed relative group transition-all ${
             isAI
-              ? 'bg-white dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 border border-gray-200/80 dark:border-gray-700/80 rounded-tl-xs shadow-xs hover:shadow-sm pr-11'
-              : 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-tr-xs shadow-sm shadow-indigo-600/20 whitespace-pre-wrap pr-11'
+              ? 'w-full text-[var(--theme-text-primary)] pr-8 py-0.5'
+              : 'px-4 py-3 rounded-2xl bg-[var(--theme-bg-user-message)] text-[var(--theme-bg-user-message-text)] border border-[var(--theme-border-secondary)]/40 shadow-2xs whitespace-pre-wrap'
           }`}
         >
           {/* Copy Button */}
           <button
             onClick={() => copyToClipboard(msg.text)}
-            className={`absolute top-2.5 right-2.5 p-1.5 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100 ${
-              isAI
-                ? 'text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                : 'text-white/70 hover:text-white hover:bg-white/15'
-            }`}
+            className={`absolute top-0 right-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100 text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)]`}
             title="复制文本"
             aria-label="复制文本"
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
             ) : (
               <Copy className="w-3.5 h-3.5" />
             )}
@@ -72,23 +68,23 @@ const ChatMessageItem: React.FC<ChatMessageItemProps> = ({ message: msg, onViewL
         {isAI && msg.locationData?.pageNumber && (
           <button
             onClick={() => onViewLocation(msg.locationData!)}
-            className="mt-2 bg-gradient-to-r from-indigo-50/90 to-violet-50/70 dark:from-indigo-950/40 dark:to-violet-950/20 border border-indigo-200/80 dark:border-indigo-800/50 rounded-xl p-2.5 shadow-2xs hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-600 transition-all text-left group w-full max-w-[320px] active:scale-[0.98]"
+            className="mt-2.5 rounded-xl border border-[var(--theme-border-secondary)]/70 bg-[var(--theme-bg-primary)] hover:border-[var(--theme-border-focus)] hover:bg-[var(--theme-bg-tertiary)]/30 p-3 shadow-2xs transition-all text-left group w-full max-w-[340px] active:scale-[0.98]"
           >
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+            <div className="flex items-center justify-between gap-1 mb-1.5">
+              <span className="text-xs font-semibold text-[var(--theme-text-primary)] flex items-center gap-1.5">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600 dark:bg-indigo-400"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--theme-text-link)] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--theme-text-link)]"></span>
                 </span>
-                <MapPin className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <MapPin className="w-3.5 h-3.5 text-[var(--theme-text-link)]" />
                 第 {msg.locationData.pageNumber} 页答案定位
               </span>
-              <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
+              <span className="text-[11px] font-medium text-[var(--theme-text-link)] flex items-center gap-0.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 定位 <ArrowUpRight className="w-3.5 h-3.5" />
               </span>
             </div>
             {msg.locationData.snippet && (
-              <div className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 border-l-2 border-indigo-300 dark:border-indigo-700 pl-2 mt-1 italic font-sans">
+              <div className="text-xs text-[var(--theme-text-secondary)] line-clamp-2 border-l-2 border-[var(--theme-border-focus)]/50 pl-2 mt-1 italic">
                 "{msg.locationData.snippet}"
               </div>
             )}

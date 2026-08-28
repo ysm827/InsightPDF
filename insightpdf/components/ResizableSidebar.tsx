@@ -52,7 +52,7 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({ children, isDesktop
     <div className="flex h-full relative">
       {/* Sidebar Wrapper */}
       <div 
-        className="flex-shrink-0 w-full md:w-auto relative flex flex-col h-full border-b md:border-b-0 border-gray-200 dark:border-gray-800"
+        className="flex-shrink-0 w-full md:w-auto relative flex flex-col h-full border-b md:border-b-0 md:border-r border-[var(--theme-border-primary)]"
         style={{ width: isDesktop ? sidebarWidth : '100%' }}
       >
         {children}
@@ -64,13 +64,13 @@ const ResizableSidebar: React.FC<ResizableSidebarProps> = ({ children, isDesktop
         onMouseDown={startResizing}
       >
         {/* Visual Line area */}
-        <div className="w-1 h-full flex justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/10 transition-colors">
-            <div className="w-[1px] h-full bg-gray-200 dark:bg-gray-800 group-hover:bg-indigo-400 transition-colors" />
+        <div className="w-1 h-full flex justify-center group-hover:bg-[var(--theme-bg-accent)]/10 transition-colors">
+            <div className="w-[1px] h-full bg-[var(--theme-border-primary)] group-hover:bg-[var(--theme-border-focus)] transition-colors" />
         </div>
         
         {/* Grip Icon */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm p-0.5 pointer-events-none">
-           <GripVertical className="w-3 h-3 text-gray-500" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[var(--theme-bg-primary)] border border-[var(--theme-border-secondary)] rounded-md shadow-2xs p-0.5 pointer-events-none">
+           <GripVertical className="w-3 h-3 text-[var(--theme-text-secondary)]" />
         </div>
       </div>
 

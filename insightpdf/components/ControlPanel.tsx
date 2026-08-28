@@ -89,7 +89,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         onToggleFilesApi={onToggleFilesApi}
       />
 
-      <div className="w-full h-full bg-white dark:bg-gray-900 flex flex-col z-30 shadow-lg relative transition-colors duration-300">
+      <div className="w-full h-full bg-[var(--theme-bg-secondary)] flex flex-col z-30 relative transition-colors">
         <PanelHeader
           onFileUpload={onFileUpload}
           onClearChat={onClearChat}
@@ -114,11 +114,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
           onSuggestionClick={handleSuggestion}
         />
 
-        {/* Floating Input Dock */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 pointer-events-none bg-gradient-to-t from-white via-white/80 dark:from-gray-900 dark:via-gray-900/80 to-transparent pt-6">
+        {/* Floating Input Dock (AMC-WebUI Composer) */}
+        <div className="absolute bottom-0 left-0 right-0 p-3 pointer-events-none bg-gradient-to-t from-[var(--theme-bg-secondary)] via-[var(--theme-bg-secondary)]/90 to-transparent pt-6">
           <form
             onSubmit={handleSubmit}
-            className="pointer-events-auto relative flex items-center gap-2 glass-card bg-white/95 dark:bg-gray-800/95 rounded-2xl shadow-xl shadow-indigo-500/5 dark:shadow-black/40 border border-gray-200/90 dark:border-gray-700/80 p-1.5 transition-all focus-within:ring-2 focus-within:ring-indigo-500/40 focus-within:border-indigo-500/50"
+            className="pointer-events-auto relative flex items-center gap-1.5 rounded-[20px] border border-[var(--theme-border-secondary)]/80 bg-[var(--theme-bg-primary)] shadow-sm p-1.5 transition-all focus-within:border-[var(--theme-border-focus)] focus-within:ring-2 focus-within:ring-[var(--theme-border-focus)]/20"
           >
             <input
               ref={inputRef}
@@ -133,7 +133,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                   : '向 Gemini 提问文档内容，支持定位与公式...'
               }
               disabled={!currentFile || isSearching}
-              className="flex-1 px-3 py-2 bg-transparent border-none focus:ring-0 outline-none text-xs sm:text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-60"
+              className="flex-1 px-3 py-1.5 bg-transparent border-none focus:ring-0 outline-none text-xs sm:text-sm text-[var(--theme-text-primary)] placeholder:text-[var(--theme-text-tertiary)] disabled:opacity-50"
               aria-label="输入问题"
             />
 
@@ -141,10 +141,10 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               <button
                 type="button"
                 onClick={() => setQuery('')}
-                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                className="w-7 h-7 flex items-center justify-center text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] rounded-lg transition-colors"
                 title="清除输入"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
 
@@ -152,16 +152,16 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
               type="submit"
               disabled={!currentFile || isLoading || !query.trim()}
               aria-label="发送问题"
-              className={`p-2.5 rounded-xl text-white transition-all shadow-xs flex items-center justify-center ${
+              className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-150 shrink-0 ${
                 !currentFile || isLoading || !query.trim()
-                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 shadow-indigo-600/20 active:scale-95'
+                  ? 'bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-tertiary)] cursor-not-allowed opacity-40'
+                  : 'bg-[var(--theme-bg-accent)] text-[var(--theme-text-accent)] hover:bg-[var(--theme-bg-accent-hover)] shadow-xs active:scale-95'
               }`}
             >
               {isLoading ? (
-                <Sparkles className="w-4 h-4 animate-spin text-indigo-400" />
+                <Sparkles className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
               )}
             </button>
           </form>

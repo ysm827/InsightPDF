@@ -53,7 +53,7 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-gray-100 dark:bg-gray-950 relative transition-colors duration-300"
+      className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-[var(--theme-bg-secondary)] text-[var(--theme-text-primary)] relative transition-colors"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
     >
@@ -64,11 +64,11 @@ const App: React.FC = () => {
         onDrop={handleDrop}
       />
 
-      {/* Mobile Toggle Button (Floating Action Button) */}
+      {/* Mobile Toggle Button (AMC style Floating Pill) */}
       {!isDesktop && file && (
         <button
           onClick={() => setMobileTab(prev => prev === 'chat' ? 'pdf' : 'chat')}
-          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-full bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 active:scale-95 transition-all flex items-center gap-2 text-xs font-bold border border-white/20"
+          className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-[var(--theme-bg-accent)] text-[var(--theme-text-accent)] shadow-md active:scale-95 transition-all flex items-center gap-2 text-xs font-semibold"
         >
           {mobileTab === 'chat' ? (
             <>

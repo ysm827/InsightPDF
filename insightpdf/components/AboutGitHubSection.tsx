@@ -20,27 +20,27 @@ const AboutGitHubSection: React.FC = () => {
       href={APP_CONFIG.GITHUB_REPO_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center justify-between p-3.5 bg-gradient-to-r from-gray-50 to-gray-100/60 dark:from-gray-800/80 dark:to-gray-800/40 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-xs transition-all group decoration-0 active:scale-[0.99]"
+      className="flex items-center justify-between p-3.5 bg-[var(--theme-bg-secondary)]/40 rounded-xl border border-[var(--theme-border-secondary)]/60 hover:border-[var(--theme-border-focus)] hover:bg-[var(--theme-bg-tertiary)]/30 transition-all group decoration-0 active:scale-[0.99]"
     >
       <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-white dark:bg-gray-900 rounded-xl shadow-2xs group-hover:scale-105 transition-transform text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-800">
-          <Github className="w-5 h-5" />
+        <div className="p-2 bg-[var(--theme-bg-primary)] rounded-lg shadow-2xs group-hover:scale-105 transition-transform text-[var(--theme-text-primary)] border border-[var(--theme-border-primary)]">
+          <Github className="w-4 h-4" />
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            <span className="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100">
+            <span className="text-xs sm:text-sm font-bold text-[var(--theme-text-primary)]">
               InsightPDF 开源仓库
             </span>
-            <ExternalLink className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ExternalLink className="w-3 h-3 text-[var(--theme-text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <span className="text-[11px] text-gray-500 dark:text-gray-400">
+          <span className="text-[11px] text-[var(--theme-text-secondary)]">
             欢迎在 GitHub 上 Star 支持项目
           </span>
         </div>
       </div>
-      <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-xl border border-gray-200/80 dark:border-gray-700/80 shadow-2xs">
+      <div className="flex items-center gap-1.5 bg-[var(--theme-bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--theme-border-primary)] shadow-2xs">
         <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-        <span className="text-xs font-bold font-mono text-gray-700 dark:text-gray-200">
+        <span className="text-xs font-bold font-mono text-[var(--theme-text-primary)]">
           {starCount !== null ? starCount.toLocaleString() : '...'}
         </span>
       </div>

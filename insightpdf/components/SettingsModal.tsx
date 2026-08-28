@@ -27,57 +27,57 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label="设置"
-        className="glass-card bg-white/95 dark:bg-gray-900/95 rounded-3xl shadow-2xl w-full max-w-lg border border-gray-200/80 dark:border-gray-800 flex flex-col max-h-[88vh] animate-zoom-in overflow-hidden"
+        className="rounded-2xl border border-[var(--theme-border-primary)] bg-[var(--theme-bg-primary)] text-[var(--theme-text-primary)] shadow-2xl w-full max-w-lg flex flex-col max-h-[85vh] animate-zoom-in overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--theme-border-primary)] bg-[var(--theme-bg-secondary)]">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+            <div className="w-8 h-8 rounded-lg bg-[var(--theme-bg-accent)]/10 text-[var(--theme-text-link)] flex items-center justify-center">
               <Settings className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">应用设置</h2>
-              <p className="text-[11px] text-gray-400 dark:text-gray-500">配置主题与 API 连接方式</p>
+              <h2 className="text-sm font-bold text-[var(--theme-text-primary)]">应用设置</h2>
+              <p className="text-[11px] text-[var(--theme-text-tertiary)]">配置主题偏好与 Gemini API 连接</p>
             </div>
           </div>
           <button
             onClick={onClose}
             aria-label="关闭设置"
-            className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)] hover:text-[var(--theme-text-primary)] transition-all"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          {/* Theme Toggle */}
+        <div className="p-6 overflow-y-auto space-y-5">
+          {/* Theme Toggle (AMC Segmented Track style) */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">外观主题</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">切换浅色或深色界面模式</span>
+              <span className="text-sm font-semibold text-[var(--theme-text-primary)]">外观主题</span>
+              <span className="text-xs text-[var(--theme-text-secondary)]">切换浅色（Pearl）或深色（Onyx）界面模式</span>
             </div>
             <button
               onClick={onToggleTheme}
-              className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--theme-border-secondary)]/70 bg-[var(--theme-bg-tertiary)]/60 hover:bg-[var(--theme-bg-tertiary)] transition-all text-xs font-semibold text-[var(--theme-text-primary)] shadow-2xs active:scale-95"
             >
               {theme === 'light' ? (
                 <>
-                  <Sun className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">浅色模式</span>
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <span>浅色模式</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-4 h-4 text-indigo-400" />
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">深色模式</span>
+                  <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>深色模式</span>
                 </>
               )}
             </button>
@@ -87,10 +87,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">使用 Gemini Files API</span>
-                <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-bold px-1.5 py-0.5 rounded-md">推荐</span>
+                <span className="text-sm font-semibold text-[var(--theme-text-primary)]">使用 Gemini Files API</span>
+                <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-1.5 py-0.5 rounded">推荐</span>
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">大文档与复杂多页 PDF 更稳定</span>
+              <span className="text-xs text-[var(--theme-text-secondary)] mt-0.5">大文档与复杂多页 PDF 更稳定</span>
             </div>
             <Toggle
               checked={useFilesApi}
@@ -99,18 +99,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             />
           </div>
 
-          <hr className="border-gray-100 dark:border-gray-800" />
+          <hr className="border-[var(--theme-border-primary)]" />
 
           {/* Custom API Config */}
           <CustomApiSection />
 
-          <hr className="border-gray-100 dark:border-gray-800" />
+          <hr className="border-[var(--theme-border-primary)]" />
 
           {/* About / Github */}
           <AboutGitHubSection />
 
           <div className="flex justify-center pt-1">
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 font-mono">
+            <p className="text-[11px] text-[var(--theme-text-tertiary)] font-mono">
               InsightPDF v{APP_CONFIG.VERSION} • Powered by Gemini 3
             </p>
           </div>

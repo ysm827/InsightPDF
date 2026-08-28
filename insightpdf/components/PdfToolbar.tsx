@@ -25,32 +25,32 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
   onFitToWidth
 }) => {
   return (
-    <div className="px-4 py-2.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/80 dark:border-gray-800/80 flex items-center justify-between shadow-2xs z-20 transition-colors">
+    <div className="h-12 px-4 bg-[var(--theme-bg-secondary)] border-b border-[var(--theme-border-primary)] flex items-center justify-between z-20 select-none transition-colors">
       {/* Left: Page Navigator */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center bg-gray-100/90 dark:bg-gray-800/90 rounded-xl p-1 border border-gray-200/50 dark:border-gray-700/50 shadow-2xs">
+        <div className="flex items-center bg-[var(--theme-bg-tertiary)]/60 rounded-lg p-0.5 border border-[var(--theme-border-secondary)]/50 shadow-2xs">
           <button 
             onClick={() => onPageChange(-1)} 
             disabled={pageNumber <= 1}
             aria-label="上一页"
-            className="p-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-primary)] hover:text-[var(--theme-text-primary)] rounded-md disabled:opacity-30 disabled:hover:bg-transparent transition-all active:scale-95"
             title="上一页"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
-          <div className="px-3 flex items-center gap-1 text-xs font-semibold text-gray-700 dark:text-gray-200 select-none">
+          <div className="px-2.5 flex items-center gap-1 text-xs font-semibold text-[var(--theme-text-primary)] select-none">
             <span>{pageNumber}</span>
-            <span className="text-gray-400 dark:text-gray-500 font-normal">/</span>
-            <span className="text-gray-500 dark:text-gray-400 font-mono">{numPages || '--'}</span>
+            <span className="text-[var(--theme-text-tertiary)] font-normal">/</span>
+            <span className="text-[var(--theme-text-secondary)] font-mono">{numPages || '--'}</span>
           </div>
           <button 
             onClick={() => onPageChange(1)} 
             disabled={numPages ? pageNumber >= numPages : true}
             aria-label="下一页"
-            className="p-1 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-primary)] hover:text-[var(--theme-text-primary)] rounded-md disabled:opacity-30 disabled:hover:bg-transparent transition-all active:scale-95"
             title="下一页"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -61,16 +61,16 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
         <button 
           onClick={onToggleOverlay}
           aria-label={showOverlay ? '隐藏定位图层' : '显示定位图层'}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
             showOverlay 
-              ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shadow-2xs' 
-              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent'
+              ? 'bg-[var(--theme-bg-accent)]/12 text-[var(--theme-text-link)] border border-[var(--theme-border-focus)]/30 shadow-2xs' 
+              : 'text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)]/70 hover:text-[var(--theme-text-primary)] border border-transparent'
           }`}
           title={showOverlay ? '已开启高亮定位（点击隐藏）' : '已隐藏高亮定位（点击显示）'}
         >
           {showOverlay ? (
             <>
-              <Eye className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <Eye className="w-3.5 h-3.5 text-[var(--theme-text-link)]" />
               <span className="hidden sm:inline">高亮定位</span>
             </>
           ) : (
@@ -81,17 +81,17 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
           )}
         </button>
         
-        <div className="w-px h-4 bg-gray-200 dark:bg-gray-800 mx-1"></div>
+        <div className="w-px h-3.5 bg-[var(--theme-border-primary)] mx-0.5"></div>
 
         {/* Fit width & window */}
         {onFitToWidth && (
           <button
             onClick={onFitToWidth}
             aria-label="适应页面宽度"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--theme-bg-tertiary)] rounded-lg text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-all active:scale-95"
             title="适应宽度"
           >
-            <Minimize2 className="w-4 h-4" />
+            <Minimize2 className="w-3.5 h-3.5" />
           </button>
         )}
 
@@ -99,27 +99,27 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
           <button
             onClick={onFitToWindow}
             aria-label="适应整页"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--theme-bg-tertiary)] rounded-lg text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-all active:scale-95"
             title="适应整页"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-3.5 h-3.5" />
           </button>
         )}
 
-        {/* Zoom Controls */}
-        <div className="flex items-center bg-gray-100/90 dark:bg-gray-800/90 rounded-xl p-1 border border-gray-200/50 dark:border-gray-700/50">
+        {/* Zoom Controls (AMC Segmented Track style) */}
+        <div className="flex items-center bg-[var(--theme-bg-tertiary)]/60 rounded-lg p-0.5 border border-[var(--theme-border-secondary)]/50">
           <button 
             onClick={() => onZoom(-0.1)}
             aria-label="缩小"
-            className="p-1 hover:bg-white dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300 transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--theme-bg-primary)] rounded-md text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-all active:scale-95"
             title="缩小"
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-3.5 h-3.5" />
           </button>
           
           <button
             onClick={onFitToWidth}
-            className="px-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-mono"
+            className="px-2 text-xs font-semibold text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-colors font-mono"
             title="点击重置为 100%"
           >
             {Math.round(scale * 100)}%
@@ -128,10 +128,10 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
           <button 
             onClick={() => onZoom(0.1)}
             aria-label="放大"
-            className="p-1 hover:bg-white dark:hover:bg-gray-700 rounded-lg text-gray-600 dark:text-gray-300 transition-all active:scale-95"
+            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--theme-bg-primary)] rounded-md text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-all active:scale-95"
             title="放大"
           >
-            <ZoomIn className="w-4 h-4" />
+            <ZoomIn className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

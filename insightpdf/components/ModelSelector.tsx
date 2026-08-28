@@ -57,24 +57,24 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 bg-white/90 dark:bg-gray-800/90 border border-gray-200/80 dark:border-gray-700/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-2xs hover:shadow-xs active:scale-95"
+        className="h-8 px-2.5 rounded-lg border border-[var(--theme-border-secondary)]/60 bg-[var(--theme-bg-primary)] hover:bg-[var(--theme-bg-tertiary)]/70 text-xs font-semibold text-[var(--theme-text-primary)] transition-all flex items-center gap-1.5 shadow-2xs active:scale-95"
         title="选择 AI 模型"
       >
-        <ActiveIcon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+        <ActiveIcon className="w-3.5 h-3.5 text-[var(--theme-text-link)]" />
         <span>{activeModel.name}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-[var(--theme-text-tertiary)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <div
           role="listbox"
-          className="absolute left-0 top-full mt-2 w-56 glass-card bg-white/95 dark:bg-gray-900/95 border border-gray-200/80 dark:border-gray-800 rounded-2xl shadow-xl py-1.5 z-50 animate-zoom-in overflow-hidden"
+          className="absolute left-0 top-full mt-1.5 w-60 rounded-xl border border-[var(--theme-border-secondary)] bg-[var(--theme-bg-primary)] shadow-xl p-1.5 z-50 animate-zoom-in overflow-hidden"
         >
-          <div className="px-3 py-1 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          <div className="px-2.5 py-1 text-[10px] font-bold text-[var(--theme-text-tertiary)] uppercase tracking-wider">
             Gemini 3 系列
           </div>
 
-          <div className="p-1 space-y-1">
+          <div className="space-y-1 mt-1">
             {AVAILABLE_MODELS.map((model) => {
               const Icon = model.icon;
               const isActive = selectedModel === model.id;
@@ -87,16 +87,16 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
                     onModelSelect(model.id);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl text-left transition-all ${
+                  className={`w-full flex items-start gap-2.5 px-2.5 py-2 rounded-lg text-left transition-all ${
                     isActive
-                      ? 'bg-indigo-50/90 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-500/20'
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100/70 dark:hover:bg-gray-800/70'
+                      ? 'bg-[var(--theme-bg-accent)]/12 text-[var(--theme-text-primary)] font-semibold'
+                      : 'text-[var(--theme-text-secondary)] hover:bg-[var(--theme-bg-tertiary)]/70 hover:text-[var(--theme-text-primary)]'
                   }`}
                 >
-                  <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${
+                  <div className={`p-1.5 rounded-md shrink-0 mt-0.5 ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                      ? 'bg-[var(--theme-bg-accent)] text-white shadow-2xs'
+                      : 'bg-[var(--theme-bg-tertiary)] text-[var(--theme-text-secondary)]'
                   }`}>
                     <Icon className="w-3.5 h-3.5" />
                   </div>
@@ -106,18 +106,18 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
                       {model.badge && (
                         <span className={`text-[9px] px-1.5 py-0.2 rounded-md font-bold ${
                           model.badge === '极速推荐'
-                            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                         }`}>
                           {model.badge}
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-400 line-clamp-1 mt-0.5">
+                    <p className="text-[10px] text-[var(--theme-text-tertiary)] line-clamp-1 mt-0.5">
                       {model.description}
                     </p>
                   </div>
-                  {isActive && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-1" />}
+                  {isActive && <Check className="w-4 h-4 text-[var(--theme-text-link)] shrink-0 mt-1" />}
                 </button>
               );
             })}
