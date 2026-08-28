@@ -38,10 +38,27 @@ const PdfDocumentList: React.FC<PdfDocumentListProps> = ({
       <Document
         file={file}
         onLoadSuccess={onLoadSuccess}
+        onLoadError={(error) => console.error('[InsightPDF] PDF render error:', error)}
         className="flex flex-col gap-6"
         loading={
-          <div className="flex items-center justify-center h-96 w-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="flex flex-col items-center justify-center h-96 w-full gap-3 text-indigo-600 dark:text-indigo-400">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-600 border-t-transparent dark:border-indigo-400"></div>
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">正在解析 PDF 页面...</span>
+          </div>
+        }
+        error={
+          <div className="flex flex-col items-center justify-center p-12 text-center max-w-md mx-auto my-12 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-red-200/80 dark:border-red-900/40">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center mb-3">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-1">
+              PDF 页面解析失败
+            </h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-4">
+              请检查该 PDF 文件是否损坏或受密码保护，也可以尝试重新上传该文件。
+            </p>
           </div>
         }
       >
