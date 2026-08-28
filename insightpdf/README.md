@@ -1,20 +1,73 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# InsightPDF
 
-# Run and deploy your AI Studio app
+上传 PDF，提出问题，让 Gemini 精确定位答案在文档中的位置，并在页面上以红框 + 箭头可视化标出。
 
-This contains everything you need to run your app locally.
+## ✨ 功能
 
-View your app in AI Studio: https://ai.studio/apps/drive/14zw9L0KbtQ-Ry_E4GH41ZVh4Ax02DpbB
+- **PDF 阅读**：连续滚动、页码导航、缩放、适应宽度/页面，仅渲染视口附近页面，大文档也流畅
+- **智能问答**：基于 Gemini，回答支持 Markdown 与 LaTeX 数学公式（KaTeX）
+- **答案定位**：返回页码 + 边界框（box2d），PDF 页面上直接标注答案位置
+- **双上传模式**：Files API（推荐，适合大文件）或 inline base64
+- **自定义 API**：支持自定义 API Key 与 Base URL（兼容各类代理）
+- **深色模式**：跟随系统偏好，可手动切换，无闪白
+- **会话持久化**：PDF 存 IndexedDB，聊天记录存 localStorage，刷新不丢失
+- **响应式**：桌面端双栏可拖拽调宽，移动端 Tab 切换 + 拖拽上传
 
-## Run Locally
+## 🚀 快速开始
 
-**Prerequisites:**  Node.js
+**前置要求：** Node.js >= 20
 
+```bash
+# 1. 安装依赖
+npm install
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+# 2. 配置 API Key
+cp .env.example .env.local   # 然后在 .env.local 中填入你的 GEMINI_API_KEY
+
+# 3. 启动开发服务器
+npm run dev                  # http://localhost:3000
+```
+
+> 没有 API Key？也可以在应用内「设置 → 自定义 API」中直接填入。
+
+## 📦 脚本
+
+| 命令 | 说明 |
+| --- | --- |
+| `npm run dev` | 启动开发服务器 |
+| `npm run build` | 类型检查 + 生产构建 |
+| `npm run typecheck` | 仅 TypeScript 类型检查 |
+| `npm run preview` | 预览生产构建 |
+
+## 🗂 项目结构
+
+```
+├── App.tsx                    # 应用布局（侧栏 + PDF 视图 + 移动端 Tab）
+├── types.ts                   # 共享类型与工具（LocatorResult / ChatMessage / generateId）
+├── components/
+│   ├── ControlPanel.tsx       # 侧栏组合容器
+│   ├── PanelHeader.tsx        # 侧栏头部（模型选择 / 设置 / 上传）
+│   ├── ModelSelector.tsx      # 模型下拉选择
+│   ├── ChatMessages.tsx       # 消息列表 + 加载/错误/重试状态
+│   ├── ChatMessageItem.tsx    # 单条消息（Markdown / 定位卡片 / 复制）
+│   ├── MarkdownRenderer.tsx   # memo 化的 Markdown + KaTeX 渲染
+│   ├── SettingsModal.tsx      # 设置弹窗
+│   ├── CustomApiConfigSection.tsx
+│   ├── AboutGitHubSection.tsx
+│   ├── PdfViewer.tsx          # PDF 视图容器
+│   ├── PdfDocumentList.tsx    # 文档分页渲染 + 视口窗口化
+│   ├── PdfToolbar.tsx         # 翻页/缩放/定位开关工具栏
+│   ├── PdfOverlay.tsx         # 答案定位红框 + 箭头
+│   ├── ResizableSidebar.tsx   # 可拖拽调宽的侧栏
+│   ├── DragDropOverlay.tsx    # 拖拽上传遮罩
+│   └── Toggle.tsx
+├── hooks/                     # useChatController / usePdf* / useTheme / ...
+└── services/
+    ├── geminiService.ts       # Gemini API 封装（超时保护）
+    ├── storageService.ts      # IndexedDB + localStorage 持久化
+    └── networkInterceptor.ts  # 自定义 Base URL 的 fetch 拦截
+```
+
+## 📄 License
+
+MIT

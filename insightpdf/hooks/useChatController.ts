@@ -1,10 +1,14 @@
-import { useCallback, useEffect } from 'react';
-import { AppStatus, ChatMessage, LocatorResult } from '../types';
+import { useCallback, useEffect, useRef } from 'react';
+import type { ChatMessage, LocatorResult } from '../types';
+import { AppStatus, generateId } from '../types';
 import { fileToGenerativePart, chatWithPdf, uploadFileToGemini } from '../services/geminiService';
-import { storage } from '../services/storageService';
+import type { GenerativeFilePart } from '../services/geminiService';
 import { useSettings } from './useSettings';
 import { useFileHandler } from './useFileHandler';
 import { useChatSession } from './useChatSession';
+
+const isPdfFile = (file: File): boolean =>
+  file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 
 export const useChatController = () => {
   // Use modular hooks
@@ -18,7 +22,6 @@ export const useChatController = () => {
 
   const { 
     file, 
-    setFile, 
     saveFile, 
     uploadedFileUri, 
     setUploadedFileUri, 
@@ -38,19 +41,88 @@ export const useChatController = () => {
     isChatHydrated 
   } = useChatSession();
 
+  // Remembers the last question so the error state can offer a one-click retry
+  const lastQueryRef = useRef<string | null>(null);
+  // Ref mirrors so runSearch never works with stale closures on retry
+  const fileRef = useRef<File | null>(null);
+  fileRef.current = file;
+  const uploadedUriRef = useRef<string | null>(null);
+  uploadedUriRef.current = uploadedFileUri;
+
   const isHydrated = isSettingsHydrated && isFileHydrated && isChatHydrated;
 
-  // Sync initial status if file exists but no messages (e.g., cleared chat but kept file)
+  // Reset retry state when a new file is loaded
   useEffect(() => {
-    if (isHydrated && file && status === AppStatus.IDLE && messages.length === 0) {
-      // Keep IDLE or set to SUCCESS if you want to show the viewer immediately?
-      // Currently, if there is a file, the viewer renders. 
-      // If we reloaded the page with a file but no messages, IDLE is appropriate.
-      // If we reloaded with messages, useChatSession sets SUCCESS.
+    lastQueryRef.current = null;
+  }, [file]);
+
+  const runSearch = useCallback(async (query: string, currentFile: File) => {
+    setErrorMessage(null);
+    setStatus(AppStatus.SEARCHING);
+
+    try {
+      let filePart: GenerativeFilePart;
+
+      if (useFilesApi) {
+        let currentUri = uploadedUriRef.current;
+
+        // Fallback: If not uploaded yet (e.g. toggled setting on after upload), upload now
+        if (!currentUri) {
+          setStatus(AppStatus.PROCESSING_FILE);
+          currentUri = await uploadFileToGemini(currentFile);
+          setUploadedFileUri(currentUri);
+          setStatus(AppStatus.SEARCHING); // Restore searching status
+        }
+
+        filePart = {
+          fileData: {
+            mimeType: currentFile.type || 'application/pdf',
+            fileUri: currentUri
+          }
+        };
+      } else {
+        // Use inline base64
+        filePart = await fileToGenerativePart(currentFile);
+      }
+
+      // Pass the selected model to the service
+      const result = await chatWithPdf(filePart, query, model);
+
+      const aiMsg: ChatMessage = {
+        id: generateId(),
+        role: 'ai',
+        text: result.answer,
+        locationData: result,
+        timestamp: Date.now()
+      };
+
+      setMessages(prev => [...prev, aiMsg]);
+
+      // If location found, auto-select it
+      if (result.pageNumber) {
+        setActiveResult(result);
+      }
+
+      setStatus(AppStatus.SUCCESS);
+      lastQueryRef.current = null;
+    } catch (error) {
+      console.error(error);
+      lastQueryRef.current = query;
+      setErrorMessage(
+        error instanceof Error ? error.message : "An error occurred while generating content."
+      );
+      setStatus(AppStatus.ERROR);
     }
-  }, [isHydrated, file, status, messages.length]);
+  }, [model, useFilesApi, setMessages, setStatus, setActiveResult, setUploadedFileUri, setErrorMessage]);
 
   const handleFileUpload = useCallback(async (uploadedFile: File) => {
+    // Validate before touching any state
+    if (!isPdfFile(uploadedFile)) {
+      setErrorMessage('仅支持 PDF 文件，请重新选择。');
+      setStatus(AppStatus.ERROR);
+      return;
+    }
+
     // 1. Reset Chat Session
     clearSession();
     
@@ -72,9 +144,11 @@ export const useChatController = () => {
         const uri = await uploadFileToGemini(uploadedFile);
         setUploadedFileUri(uri);
         setStatus(AppStatus.IDLE);
-      } catch (error: any) {
+      } catch (error) {
         console.error("File upload failed:", error);
-        setErrorMessage(error.message || "File upload failed.");
+        setErrorMessage(
+          error instanceof Error ? error.message : "File upload failed."
+        );
         setStatus(AppStatus.ERROR);
       }
     } else {
@@ -84,10 +158,8 @@ export const useChatController = () => {
 
   const handleClearChat = useCallback(() => {
     // Just clear the conversation, keep the file
+    lastQueryRef.current = null;
     clearSession();
-    // Re-set status to IDLE is handled by clearSession, but strictly speaking 
-    // if a file is present we might want to ensure we don't look "empty"
-    // However, AppStatus.IDLE with a file present is a valid state.
   }, [clearSession]);
 
   const handleViewLocation = useCallback((result: LocatorResult) => {
@@ -95,69 +167,29 @@ export const useChatController = () => {
   }, [setActiveResult]);
 
   const handleSearch = useCallback(async (query: string) => {
-    if (!file) return;
-
-    setErrorMessage(null);
+    const currentFile = fileRef.current;
+    if (!currentFile || !query.trim()) return;
 
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: generateId(),
       role: 'user',
       text: query,
       timestamp: Date.now()
     };
     setMessages(prev => [...prev, userMsg]);
-    setStatus(AppStatus.SEARCHING);
 
-    try {
-      let filePart;
+    await runSearch(query, currentFile);
+  }, [runSearch, setMessages]);
 
-      if (useFilesApi) {
-        let currentUri = uploadedFileUri;
-        
-        // Fallback: If not uploaded yet (e.g. toggled setting on after upload), upload now
-        if (!currentUri) {
-          setStatus(AppStatus.PROCESSING_FILE);
-          currentUri = await uploadFileToGemini(file);
-          setUploadedFileUri(currentUri);
-          setStatus(AppStatus.SEARCHING); // Restore searching status
-        }
+  /** Re-sends the last failed question without duplicating the user message. */
+  const handleRetry = useCallback(async () => {
+    const currentFile = fileRef.current;
+    const query = lastQueryRef.current;
+    if (!currentFile || !query) return;
+    await runSearch(query, currentFile);
+  }, [runSearch]);
 
-        filePart = {
-          fileData: {
-            mimeType: file.type,
-            fileUri: currentUri
-          }
-        };
-      } else {
-        // Use inline base64
-        filePart = await fileToGenerativePart(file);
-      }
-
-      // Pass the selected model to the service
-      const result = await chatWithPdf(filePart, query, model);
-      
-      const aiMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: 'ai',
-        text: result.answer,
-        locationData: result,
-        timestamp: Date.now()
-      };
-
-      setMessages(prev => [...prev, aiMsg]);
-      
-      // If location found, auto-select it
-      if (result.pageNumber) {
-        setActiveResult(result);
-      }
-      
-      setStatus(AppStatus.SUCCESS);
-    } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.message || "An error occurred while generating content.");
-      setStatus(AppStatus.ERROR);
-    }
-  }, [file, model, useFilesApi, uploadedFileUri, setMessages, setStatus, setActiveResult, setUploadedFileUri, setErrorMessage]);
+  const canRetry = status === AppStatus.ERROR && lastQueryRef.current !== null;
 
   return {
     file,
@@ -171,6 +203,8 @@ export const useChatController = () => {
     handleFileUpload,
     handleClearChat,
     handleSearch,
+    handleRetry,
+    canRetry,
     handleViewLocation,
     toggleFilesApi,
     isHydrated

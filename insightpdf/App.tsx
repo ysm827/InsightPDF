@@ -8,7 +8,7 @@ import { useTheme } from './hooks/useTheme';
 import { useChatController } from './hooks/useChatController';
 import { useDragDrop } from './hooks/useDragDrop';
 import { MessageSquare, FileText } from 'lucide-react';
-import { LocatorResult } from './types';
+import type { LocatorResult } from './types';
 
 const App: React.FC = () => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -29,6 +29,8 @@ const App: React.FC = () => {
     handleFileUpload,
     handleClearChat,
     handleSearch,
+    handleRetry,
+    canRetry,
     handleViewLocation,
     toggleFilesApi
   } = useChatController();
@@ -83,6 +85,8 @@ const App: React.FC = () => {
           <ControlPanel 
             onFileUpload={handleFileUpload}
             onSearch={handleSearch}
+            onRetry={handleRetry}
+            canRetry={canRetry}
             onViewLocation={onMobileViewLocation}
             onClearChat={handleClearChat}
             status={status}

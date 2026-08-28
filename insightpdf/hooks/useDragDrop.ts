@@ -28,13 +28,10 @@ export const useDragDrop = (onFileDrop: (file: File) => void) => {
     setIsDragging(false);
 
     const files = e.dataTransfer.files;
+    // Defer validation (type/extension) to the upload handler so the user
+    // always gets a visible error message instead of a silent console warning.
     if (files && files.length > 0) {
-      const droppedFile = files[0];
-      if (droppedFile.type === 'application/pdf') {
-        onFileDrop(droppedFile);
-      } else {
-        console.warn("Only PDF files are supported");
-      }
+      onFileDrop(files[0]);
     }
   }, [onFileDrop]);
 

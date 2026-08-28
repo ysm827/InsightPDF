@@ -1,4 +1,5 @@
-import { useState, useCallback, RefObject } from 'react';
+import { useState, useCallback } from 'react';
+import type { RefObject } from 'react';
 
 export const usePdfZoom = (containerRef: RefObject<HTMLDivElement | null>) => {
   const [scale, setScale] = useState<number>(1.0);

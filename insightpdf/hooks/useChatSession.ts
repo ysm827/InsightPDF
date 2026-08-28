@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { AppStatus, ChatMessage, LocatorResult } from '../types';
+import { useState, useEffect, useCallback } from 'react';
+import type { ChatMessage, LocatorResult } from '../types';
+import { AppStatus } from '../types';
 import { storage } from '../services/storageService';
 
 export const useChatSession = () => {
@@ -8,43 +9,38 @@ export const useChatSession = () => {
   const [activeResult, setActiveResult] = useState<LocatorResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isChatHydrated, setIsChatHydrated] = useState(false);
-  
-  const initialLoadRef = useRef(true);
 
-  // Hydrate Chat Session
+  // Hydrate Chat Session. State updates inside this effect are batched,
+  // so the persistence effects below never fire with stale values.
   useEffect(() => {
-    const loadChatState = async () => {
-      try {
-        const savedMessages = storage.getMessages();
-        const savedActiveResult = storage.getActiveResult();
-        
-        setMessages(savedMessages);
-        setActiveResult(savedActiveResult);
+    try {
+      const savedMessages = storage.getMessages();
+      const savedActiveResult = storage.getActiveResult();
 
-        // If we restored messages, update status to show content
-        if (savedMessages.length > 0) {
-          setStatus(AppStatus.SUCCESS);
-        }
-      } catch (error) {
-        console.error("Failed to hydrate chat session:", error);
-      } finally {
-        setIsChatHydrated(true);
-        setTimeout(() => { initialLoadRef.current = false; }, 100);
+      setMessages(savedMessages);
+      setActiveResult(savedActiveResult);
+
+      // If we restored messages, update status to show content
+      if (savedMessages.length > 0) {
+        setStatus(AppStatus.SUCCESS);
       }
-    };
-    loadChatState();
+    } catch (error) {
+      console.error("Failed to hydrate chat session:", error);
+    } finally {
+      setIsChatHydrated(true);
+    }
   }, []);
 
   // Persist Messages
   useEffect(() => {
-    if (!initialLoadRef.current && isChatHydrated) {
+    if (isChatHydrated) {
       storage.saveMessages(messages);
     }
   }, [messages, isChatHydrated]);
 
   // Persist Active Result
   useEffect(() => {
-    if (!initialLoadRef.current && isChatHydrated) {
+    if (isChatHydrated) {
       storage.saveActiveResult(activeResult);
     }
   }, [activeResult, isChatHydrated]);

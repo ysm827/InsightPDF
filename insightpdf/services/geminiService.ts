@@ -1,35 +1,50 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { LocatorResult } from '../types';
+import type { LocatorResult } from '../types';
 import { storage } from './storageService';
+
+/** Single request timeout — Gemini can hang on very large documents. */
+const REQUEST_TIMEOUT_MS = 120_000;
+
+/** Rejects if the wrapped promise does not settle within `ms`. */
+const withTimeout = <T>(promise: Promise<T>, ms: number, label: string): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`${label} 超时（${Math.round(ms / 1000)}s），请重试或更换模型。`)),
+      ms
+    );
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (error) => { clearTimeout(timer); reject(error); }
+    );
+  });
 
 const getClient = () => {
   const customConfig = storage.getCustomConfig();
-  let apiKey = (customConfig.enabled && customConfig.apiKey) ? customConfig.apiKey : process.env.API_KEY;
+  let apiKey = (customConfig.enabled && customConfig.apiKey)
+    ? customConfig.apiKey
+    : import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error("API Key is missing.");
+    throw new Error("API Key is missing. Please set GEMINI_API_KEY in .env.local or configure a custom key in settings.");
   }
 
-  // 1. Strong cleaning: Remove all spaces, newlines (\n), and carriage returns (\r)
+  // Strong cleaning: Remove all spaces, newlines (\n), and carriage returns (\r).
   // Copy-pasting often introduces invisible characters causing "API key not valid" errors.
   apiKey = apiKey.replace(/[\n\r\s]/g, '');
 
-  const options: any = { apiKey };
+  // NOTE: BaseURL handling lives in services/networkInterceptor.ts.
+  // This prevents the SDK from generating malformed URLs (like /v1beta/v1beta)
+  // and handles both /upload and standard endpoints uniformly via global fetch interception.
 
-  // NOTE: BaseURL handling has been moved to services/networkInterceptor.ts
-  // This prevents the SDK from generating malformed URLs (like /v1beta/v1beta) 
-  // and allows handling both /upload and standard endpoints uniformly via global fetch interception.
-  
-  // Debug logs (Visible in F12 Console)
-  if (customConfig.enabled && customConfig.baseUrl) {
-    console.log('[InsightPDF] Using Custom BaseURL via Interceptor:', customConfig.baseUrl);
-  }
-  console.log('[InsightPDF] Using Key (first 4 chars):', apiKey.substring(0, 4) + '****');
-
-  return new GoogleGenAI(options);
+  return new GoogleGenAI({ apiKey });
 };
 
-export const fileToGenerativePart = async (file: File): Promise<{ inlineData: { data: string; mimeType: string } }> => {
+export interface GenerativeFilePart {
+  inlineData?: { data: string; mimeType: string };
+  fileData?: { data?: string; mimeType: string; fileUri?: string };
+}
+
+export const fileToGenerativePart = async (file: File): Promise<GenerativeFilePart> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -37,32 +52,49 @@ export const fileToGenerativePart = async (file: File): Promise<{ inlineData: { 
       const base64Data = base64String.split(',')[1];
       resolve({
         inlineData: {
-          data: base64Data,
+          data: base64Data ?? '',
           mimeType: file.type,
         },
       });
     };
-    reader.onerror = reject;
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read file.'));
     reader.readAsDataURL(file);
   });
 };
 
 export const uploadFileToGemini = async (file: File): Promise<string> => {
   const ai = getClient();
-  
-  const response = await ai.files.upload({
-    file: file,
-    config: { 
-      mimeType: file.type,
-      displayName: file.name
-    }
-  });
 
+  const response = await withTimeout(
+    ai.files.upload({
+      file: file,
+      config: {
+        mimeType: file.type,
+        displayName: file.name
+      }
+    }),
+    REQUEST_TIMEOUT_MS,
+    '文件上传'
+  );
+
+  if (!response.uri) {
+    throw new Error('Upload succeeded but no file URI was returned.');
+  }
   return response.uri;
 };
 
+
+interface RawLocatorResponse {
+  answer?: string;
+  foundLocation?: boolean;
+  pageNumber?: number;
+  box2d?: number[];
+  snippet?: string;
+  reasoning?: string;
+}
+
 export const chatWithPdf = async (
-  filePart: any, 
+  filePart: GenerativeFilePart,
   query: string,
   modelName: string
 ): Promise<LocatorResult> => {
@@ -117,38 +149,52 @@ export const chatWithPdf = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: modelName,
-      contents: {
-        parts: [
-          filePart,
-          { text: prompt }
-        ]
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      }
-    });
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: modelName,
+        contents: {
+          parts: [
+            filePart as never,
+            { text: prompt }
+          ]
+        },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: responseSchema,
+        }
+      }),
+      REQUEST_TIMEOUT_MS,
+      '生成回复'
+    );
 
     const text = response.text;
     if (!text) {
       throw new Error("No response from Gemini.");
     }
 
-    const result = JSON.parse(text) as any;
-    
+    const result = JSON.parse(text) as RawLocatorResponse;
+    if (!result.answer) {
+      throw new Error("Malformed response from Gemini: missing 'answer'.");
+    }
+    const hasLocation = result.foundLocation === true;
+    const box = hasLocation && Array.isArray(result.box2d) && result.box2d.length === 4
+      ? (result.box2d as [number, number, number, number])
+      : undefined;
+    const pageNumber = hasLocation && result.pageNumber ? result.pageNumber : undefined;
+
     // Clean up result to match interface
     return {
       answer: result.answer,
-      pageNumber: result.foundLocation ? result.pageNumber : undefined,
-      box2d: result.foundLocation ? result.box2d : undefined,
-      snippet: result.foundLocation ? result.snippet : undefined,
-      reasoning: result.foundLocation ? result.reasoning : undefined,
+      pageNumber,
+      box2d: box,
+      snippet: hasLocation ? result.snippet : undefined,
+      reasoning: hasLocation ? result.reasoning : undefined,
     };
-
   } catch (error) {
     console.error("Gemini Error:", error);
+    if (error instanceof SyntaxError) {
+      throw new Error("模型返回了无法解析的内容，请重试。");
+    }
     throw error;
   }
 };

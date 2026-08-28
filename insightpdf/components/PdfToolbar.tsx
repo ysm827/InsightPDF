@@ -31,6 +31,7 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
           <button 
             onClick={() => onPageChange(-1)} 
             disabled={pageNumber <= 1}
+            aria-label="上一页"
             className="p-1 hover:bg-white dark:hover:bg-gray-600 dark:text-gray-200 rounded-md disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -41,6 +42,7 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
           <button 
             onClick={() => onPageChange(1)} 
             disabled={numPages ? pageNumber >= numPages : true}
+            aria-label="下一页"
             className="p-1 hover:bg-white dark:hover:bg-gray-600 dark:text-gray-200 rounded-md disabled:opacity-30 transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
@@ -51,8 +53,9 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
       <div className="flex items-center space-x-2">
         <button 
           onClick={onToggleOverlay}
+          aria-label={showOverlay ? '隐藏定位' : '显示定位'}
           className={`p-2 rounded-full transition-colors ${showOverlay ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400'}`}
-          title={showOverlay ? "隐藏定位" : "显示定位"}
+          title={showOverlay ? '隐藏定位' : '显示定位'}
         >
           {showOverlay ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
         </button>
@@ -62,6 +65,7 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
         {onFitToWidth && (
           <button
             onClick={onFitToWidth}
+            aria-label="适应宽度"
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400"
             title="适应宽度"
           >
@@ -72,6 +76,7 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
         {onFitToWindow && (
           <button
             onClick={onFitToWindow}
+            aria-label="适应页面"
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400"
             title="适应页面"
           >
@@ -81,7 +86,9 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
 
         <button 
           onClick={() => onZoom(-0.1)}
+          aria-label="缩小"
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400"
+          title="缩小"
         >
           <ZoomOut className="w-5 h-5" />
         </button>
@@ -90,7 +97,9 @@ const PdfToolbar: React.FC<PdfToolbarProps> = ({
         </span>
         <button 
           onClick={() => onZoom(0.1)}
+          aria-label="放大"
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-400"
+          title="放大"
         >
           <ZoomIn className="w-5 h-5" />
         </button>

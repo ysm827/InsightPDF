@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { storage } from '../services/storageService';
 
+export const DEFAULT_MODEL = 'gemini-3-flash-preview';
+
 export const useSettings = () => {
-  const [model, setModel] = useState<string>('gemini-3-flash-preview');
+  const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [useFilesApi, setUseFilesApi] = useState<boolean>(true);
   const [isSettingsHydrated, setIsSettingsHydrated] = useState(false);
 
   useEffect(() => {
-    const savedModel = storage.getModel('gemini-3-flash-preview');
-    const savedUseFilesApi = storage.getUseFilesApi(true);
-    setModel(savedModel);
-    setUseFilesApi(savedUseFilesApi);
+    setModel(storage.getModel(DEFAULT_MODEL));
+    setUseFilesApi(storage.getUseFilesApi(true));
     setIsSettingsHydrated(true);
   }, []);
 

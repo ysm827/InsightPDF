@@ -1,4 +1,4 @@
-import { ChatMessage, LocatorResult } from '../types';
+import type { ChatMessage, LocatorResult } from '../types';
 
 const DB_NAME = 'InsightPDF_DB';
 const DB_VERSION = 1;
@@ -94,16 +94,41 @@ const KEYS = {
   USE_FILES_API: 'insight_use_files_api',
   UPLOADED_URI: 'insight_uploaded_uri',
   CUSTOM_CONFIG: 'insight_custom_config',
+} as const;
+
+/** JSON.parse that never throws — corrupted entries are treated as absent. */
+const readJson = <T>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch (error) {
+    console.warn(`[storage] Failed to parse "${key}", using fallback.`, error);
+    return fallback;
+  }
+};
+
+export interface CustomApiConfig {
+  enabled: boolean;
+  apiKey: string;
+  baseUrl: string;
+}
+
+const DEFAULT_CUSTOM_CONFIG: CustomApiConfig = {
+  enabled: false,
+  apiKey: '',
+  baseUrl: '',
 };
 
 export const storage = {
   saveMessages: (messages: ChatMessage[]) => {
-    localStorage.setItem(KEYS.MESSAGES, JSON.stringify(messages));
+    try {
+      localStorage.setItem(KEYS.MESSAGES, JSON.stringify(messages));
+    } catch (error) {
+      // Storage can be full (quota) or unavailable (private mode) — degrade gracefully.
+      console.warn('[storage] Failed to persist messages.', error);
+    }
   },
-  getMessages: (): ChatMessage[] => {
-    const data = localStorage.getItem(KEYS.MESSAGES);
-    return data ? JSON.parse(data) : [];
-  },
+  getMessages: (): ChatMessage[] => readJson<ChatMessage[]>(KEYS.MESSAGES, []),
   
   saveActiveResult: (result: LocatorResult | null) => {
     if (result) {
@@ -112,10 +137,8 @@ export const storage = {
       localStorage.removeItem(KEYS.ACTIVE_RESULT);
     }
   },
-  getActiveResult: (): LocatorResult | null => {
-    const data = localStorage.getItem(KEYS.ACTIVE_RESULT);
-    return data ? JSON.parse(data) : null;
-  },
+  getActiveResult: (): LocatorResult | null =>
+    readJson<LocatorResult | null>(KEYS.ACTIVE_RESULT, null),
 
   saveModel: (model: string) => {
     localStorage.setItem(KEYS.MODEL, model);
@@ -129,7 +152,7 @@ export const storage = {
   },
   getUseFilesApi: (defaultVal: boolean): boolean => {
     const data = localStorage.getItem(KEYS.USE_FILES_API);
-    return data ? JSON.parse(data) : defaultVal;
+    return data === null ? defaultVal : data === 'true';
   },
 
   saveUploadedUri: (uri: string | null) => {
@@ -140,13 +163,11 @@ export const storage = {
     return localStorage.getItem(KEYS.UPLOADED_URI);
   },
 
-  saveCustomConfig: (config: { enabled: boolean; apiKey: string; baseUrl: string }) => {
+  saveCustomConfig: (config: CustomApiConfig) => {
     localStorage.setItem(KEYS.CUSTOM_CONFIG, JSON.stringify(config));
   },
-  getCustomConfig: (): { enabled: boolean; apiKey: string; baseUrl: string } => {
-    const data = localStorage.getItem(KEYS.CUSTOM_CONFIG);
-    return data ? JSON.parse(data) : { enabled: false, apiKey: '', baseUrl: '' };
-  },
+  getCustomConfig: (): CustomApiConfig =>
+    readJson<CustomApiConfig>(KEYS.CUSTOM_CONFIG, DEFAULT_CUSTOM_CONFIG),
 
   clearAllMetadata: () => {
     localStorage.removeItem(KEYS.MESSAGES);

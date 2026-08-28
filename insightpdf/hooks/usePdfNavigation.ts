@@ -5,17 +5,20 @@ export const usePdfNavigation = (numPages: number | null) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const isAutoScrolling = useRef(false);
+  // Mirror of pageNumber so the IntersectionObserver never needs to be re-created
+  const pageNumberRef = useRef<number>(1);
+  pageNumberRef.current = pageNumber;
 
   const scrollToPage = useCallback((targetPage: number) => {
     const pageEl = pageRefs.current.get(targetPage);
     if (pageEl) {
       isAutoScrolling.current = true;
       setPageNumber(targetPage);
-      
+
       pageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      
+
       // Release the lock after animation roughly completes
-      setTimeout(() => {
+      window.setTimeout(() => {
         isAutoScrolling.current = false;
       }, 800);
     }
@@ -29,7 +32,9 @@ export const usePdfNavigation = (numPages: number | null) => {
     }
   }, []);
 
-  // Intersection Observer to update page number on scroll
+  // Intersection Observer to update page number on scroll.
+  // NOTE: depends only on numPages — recreating it on every page change was
+  // both a performance issue and a stale-closure trap.
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !numPages) return;
@@ -39,13 +44,13 @@ export const usePdfNavigation = (numPages: number | null) => {
         if (isAutoScrolling.current) return;
 
         // Find the page with the highest intersection ratio (most visible)
-        const visibleEntry = entries.reduce((prev, current) => 
+        const visibleEntry = entries.reduce((prev, current) =>
           (prev.intersectionRatio > current.intersectionRatio) ? prev : current
         );
 
         if (visibleEntry.isIntersecting && visibleEntry.intersectionRatio > 0) {
           const pageNum = Number(visibleEntry.target.getAttribute('data-page-number'));
-          if (!isNaN(pageNum) && pageNum !== pageNumber) {
+          if (!isNaN(pageNum) && pageNum !== pageNumberRef.current) {
             setPageNumber(pageNum);
           }
         }
@@ -57,12 +62,22 @@ export const usePdfNavigation = (numPages: number | null) => {
       }
     );
 
-    pageRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
-    });
+    // Observe pages once, and re-attach refs registered later (lazy mounts)
+    const attachAll = () => {
+      pageRefs.current.forEach((el) => {
+        observer.observe(el);
+      });
+    };
+    attachAll();
 
-    return () => observer.disconnect();
-  }, [numPages, pageNumber]); // Re-run when pages change
+    // A short retry catches pages whose refs register after this effect runs
+    const retryTimer = window.setTimeout(attachAll, 300);
+
+    return () => {
+      window.clearTimeout(retryTimer);
+      observer.disconnect();
+    };
+  }, [numPages]);
 
   return {
     pageNumber,

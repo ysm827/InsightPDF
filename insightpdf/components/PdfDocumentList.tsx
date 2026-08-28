@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
-import { LocatorResult } from '../types';
+import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import type { LocatorResult } from '../types';
 import PdfOverlay from './PdfOverlay';
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Use the locally bundled worker (previously fetched from unpkg at runtime)
+pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+
 
 interface PdfDocumentListProps {
   file: File;

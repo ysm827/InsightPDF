@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { mountNetworkInterceptor } from './services/networkInterceptor';
+import './index.css';
 
 // Initialize the global network interceptor before React mounts
 // This ensures that any API calls (even early ones) respect the custom Base URL settings

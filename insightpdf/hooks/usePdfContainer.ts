@@ -1,4 +1,5 @@
-import { useState, useEffect, RefObject } from 'react';
+import { useState, useEffect } from 'react';
+import type { RefObject } from 'react';
 
 export const usePdfContainer = (containerRef: RefObject<HTMLDivElement | null>) => {
   const [containerWidth, setContainerWidth] = useState<number>(600);

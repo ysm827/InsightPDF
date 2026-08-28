@@ -22,3 +22,11 @@ export enum AppStatus {
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
 }
+
+/** Collision-safe id generator (crypto.randomUUID with a graceful fallback). */
+export const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+};

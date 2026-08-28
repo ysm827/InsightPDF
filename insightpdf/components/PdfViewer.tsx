@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LocatorResult } from '../types';
+import type { LocatorResult } from '../types';
 import PdfToolbar from './PdfToolbar';
 import PdfDocumentList from './PdfDocumentList';
 import { usePdfNavigation } from '../hooks/usePdfNavigation';

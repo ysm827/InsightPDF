@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowDown } from 'lucide-react';
-import { LocatorResult } from '../types';
+import type { LocatorResult } from '../types';
 
 interface PdfOverlayProps {
   result: LocatorResult | null;
